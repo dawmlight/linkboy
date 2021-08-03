@@ -1,17 +1,3 @@
-/*
- * Copyright (c) 2021 linkboy
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 #include "remo_typedef.h"
 
@@ -79,7 +65,17 @@ void LoadAndRun()
 	
 	VM_Reset();
 	
+	/*
 	//ULength = 0;
+	Running = true;
+	
+	//这里需要好好研究一下, 为何每次都需要手工启动定时器
+	Timer_SetTimeMs( 10 );
+	
+	//开启高速驱动定时器 (ESP32防止读写flash cache冲突, 放到最后)
+	remo_DrvTimer_Start();
+	*/
+	
 	Running = false;
 	uint32 Head = Flash_ReadUint32(0);
 	Head &= 0x000000FF;
@@ -93,8 +89,8 @@ void LoadAndRun()
 		remo_DrvTimer_Start();
 	}
 }
-//系统启动时执行一次
-void setup()
+//系统启动时执行一次 - 如果是K210等需要反复读取缓冲区的, 调用此函数, 而不是 setup
+void setup0()
 {
 	//对于STM32系列好像默认就是开启的
 	remo_SYS_interrupt_enable();
@@ -114,7 +110,7 @@ void setup()
 	//定时器初始化
 	Timer_Init();
 	
-	//驱动定时器初始化
+	//驱动定时器初始化 - ESP32:不能在读取flash之前就开启定时器中断! 将导致cache冲突
 	remo_DrvTimer_Init();
 	
 	//加载并执行目标文件程序
@@ -122,9 +118,14 @@ void setup()
 	
 	//这里设置是否禁用上电后自动执行用户代码
 	//Running = false;
+}
+//系统启动时执行一次 - 本函数适用于带有串口中断进行Deal处理的芯片
+void setup()
+{
+	setup0();
 	
 	//按下复位键之后的1秒钟为预留时间, 用于特殊情况下的程序下载
-	//SoftDelay_ms(1000);
+	SoftDelay_ms(1000);
 }
 //系统反复调用此函数
 void loop()
@@ -233,7 +234,7 @@ uint16 Pro_Length;
 	//#define VM_VERSION_CONTINUE 1
 
 const uint8 VM_VERSION_A = 2;
-const uint8 VM_VERSION_B = 31;
+const uint8 VM_VERSION_B = 32;
 
 //A.B: 0.0 创世版 - 2019.5.8
 //A.B: 1.0 2020.2.27 完善了大部分的硬件接口相关模块
@@ -244,6 +245,7 @@ const uint8 VM_VERSION_B = 31;
 //A.B: 2.30 (2021.6.7) 增加了switch语句字节码
 
 //A.B: 2.031 (2021.6.22) 完善了步进驱动方波模式; 调整了版本号机制, 增加为3位数字
+//A.B: 2.032 (2021.7.28) 增加了PS2摇杆模拟量，改善了稳定性
 
 
 /*
