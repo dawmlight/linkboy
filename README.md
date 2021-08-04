@@ -11,7 +11,15 @@ OpenHamony# linkboy-hos
 
 #### 使用说明
 
-1.  将vos代码放置于 OpenHarmony 源码的 Application 文件夹替代示例程序, 按照 gn 文件描述的进行编辑构建
+1.  将vos文件夹放置于 OpenHarmony 源码的 Application\sample\wifi-iot\app 文件夹;
+2.  将父文件夹的 BUILD.gn 文件内容改为:
+
+import("//build/lite/config/component/lite_component.gni")
+lite_component("app") {
+    features = [
+        "vos:main"
+    ]
+}
 
 
 #### 参与贡献
