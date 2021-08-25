@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2021 linkboy
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,8 +55,8 @@ const uint8 DEV_MESSAGE[] = "CPU:HI3861,FREQ:160,CC:0";
 
 //#define remo_CLOCK_M 160
 
-#include "remo_Device\Common.c"
-#include "remo_Device\hi3861.c"
+#include "remo_Device/Common.c"
+#include "remo_Device/hi3861.c"
 
 //========================================================================================
 
